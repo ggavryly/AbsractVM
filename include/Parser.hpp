@@ -1,14 +1,12 @@
 #pragma once
 #include "main.hpp"
 #include "Command.hpp"
-
 class Parser
 {
-
 public:
-	Parser(std::string const & name);
+	Parser(std::string const & name, std::list<Command> &_commands);
 	
-	Parser();
+	Parser(std::list<Command> &_commands);
 	
 	std::string Trim(const std::string & str);
 	
@@ -20,28 +18,9 @@ public:
 
 private:
 	std::ifstream					_file_read;
-	std::list<Command>				_commands;
-	
-private:
-	class ParserError
-	{
-	public:
-		ParserError();
-		
-		ParserError(ParserError const &);
-		
-		~ParserError();
-	
-	public:
-		static bool ExitTest(std::list<Command> const &);
-	};
 	
 private:
 	class InvalidFile : public std::exception
-	{
-		const char* what() const noexcept;
-	};
-	class NoExitCommand : public std::exception
 	{
 		const char* what() const noexcept;
 	};
@@ -53,6 +32,5 @@ private:
 	{
 		const char* what() const noexcept;
 	};
-	
 };
 

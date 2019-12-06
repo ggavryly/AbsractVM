@@ -1,6 +1,6 @@
 #include "Parser.hpp"
 
-Parser::Parser(std::string const & name)
+Parser::Parser(std::string const & name, std::list<Command> &_commands)
 {
 	_file_read.open(name, std::ifstream::in);
 	if (_file_read.is_open())
@@ -19,7 +19,6 @@ Parser::Parser(std::string const & name)
 				exit(2);
 			}
 		}
-		ParserError::ExitTest(_commands);
 		for (auto & elem : _commands)
 		{
 			std::cout << "Value: " <<  elem.GetValue() << "| Action: " << elem.GetAction() << std::endl;
@@ -29,7 +28,7 @@ Parser::Parser(std::string const & name)
 		throw Parser::InvalidFile();
 }
 
-Parser::Parser()
+Parser::Parser(std::list<Command> &_commands)
 {
 	std::string line;
 	for (;std::getline(std::cin, line);)
@@ -39,7 +38,6 @@ Parser::Parser()
 		line = Trim(line);
 		_commands.push_front(ParseCommand(line));
 	}
-	ParserError::ExitTest(_commands);
 	for (auto & elem : _commands)
 	{
 		std::cout << "Value: " <<  elem.GetValue() << "| Action: " << elem.GetAction() << std::endl;
@@ -56,22 +54,6 @@ Parser::~Parser()
 	_file_read.close();
 }
 
-Parser::ParserError::ParserError()
-{}
-
-Parser::ParserError::ParserError(ParserError const &)
-{}
-
-Parser::ParserError::~ParserError()
-{}
-
-bool Parser::ParserError::ExitTest(std::list<Command> const &actions)
-{
-	if ((actions.front().GetAction() == "exit"))
-		return true;
-	throw Parser::NoExitCommand();
-}
-
 const char* Parser::InvalidFile::what() const noexcept
 {
 	return "Invalid File";
@@ -85,11 +67,6 @@ const char* Parser::UnknownCommand::what() const noexcept
 const char* Parser::SyntaxError::what() const noexcept
 {
 	return "Virtual machine detect syntax error";
-}
-
-const char* Parser::NoExitCommand::what() const noexcept
-{
-	return "[Exit] command hasn't been found";
 }
 
 std::string Parser::Trim(const std::string &str)
