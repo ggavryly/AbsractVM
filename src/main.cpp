@@ -1,20 +1,28 @@
 #include "main.hpp"
+#include "Parser.hpp"
 
 int main(int argc, char **argv)
 {
-	if (argc > 1)
+	std::string command;
+	try
 	{
-		std::string command;
-		for (int i = 1; i < argc; i++)
+		if (argc > 1)
 		{
-			std::ifstream input_fd;
-			input_fd.open(argv[i]);
-			input_fd >> command;
+			for (int i = 1; i < argc; i++)
+			{
+				Parser parser(argv[i]);
+				
+			}
+		}
+		else
+		{
+			Parser parser;
 		}
 	}
-	else
+	catch (std::exception &e)
 	{
-		for (;std::string::getline();)
+		std::cout << e.what() << std::endl;
+		exit(2);
 	}
 	return 0;
 }
