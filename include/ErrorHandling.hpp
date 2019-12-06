@@ -5,11 +5,9 @@ class ErrorHandling
 {
 public:
 	ErrorHandling();
-	
 	ErrorHandling(ErrorHandling const &);
-	
 	~ErrorHandling();
-
+	
 public:
 	static bool ExitTest(std::list<Command> const &);
 

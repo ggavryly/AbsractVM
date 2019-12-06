@@ -7,3 +7,7 @@
 #include <exception>
 #include <forward_list>
 #include <list>
+#include <cmath>
+#include <stack>
+#include <sstream>
+#include <map>

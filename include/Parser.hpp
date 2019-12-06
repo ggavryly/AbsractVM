@@ -5,17 +5,14 @@ class Parser
 {
 public:
 	Parser(std::string const & name, std::list<Command> &_commands);
-	
 	Parser(std::list<Command> &_commands);
-	
-	std::string Trim(const std::string & str);
-	
-	Command ParseCommand(std::string const &);
-	
 	Parser(Parser const &);
-	
 	~Parser();
 
+public:
+	std::string Trim(const std::string & str);
+	Command ParseCommand(std::string const &);
+	
 private:
 	std::ifstream					_file_read;
 	
