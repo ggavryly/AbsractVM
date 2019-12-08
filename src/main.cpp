@@ -1,5 +1,5 @@
 #include "main.hpp"
-#include "Parser.hpp"
+#include "AVM.hpp"
 
 int main(int argc, char **argv)
 {

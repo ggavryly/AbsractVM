@@ -1,5 +1,5 @@
-#include <OperandFactory.hpp>
 #include "Operand.hpp"
+#include "AVM.hpp"
 template <typename T>
 const char* Operand<T>::UnderflowError::what() const noexcept
 {
@@ -45,60 +45,157 @@ std::string const & Operand<T>::ToString() const
 	return _str_value;
 }
 template <typename T>
-IOperand const* Operand<T>::operator+(IOperand const &r) const
+IOperand const* Operand<T>::operator+(IOperand const &rhs) const
 {
-	long double         rhs;
+	long double         r_arg;
 	T                   tmp;
-	std::stringstream   stream(r.ToString());
+	std::stringstream   stream(rhs.ToString());
 	
-	stream >> rhs;
+	stream >> r_arg;
 	tmp = rhs; tmp += _value;
-	if (rhs > 0 && _value > 0 && tmp < 0)
+	if (r_arg > 0 && _value > 0 && tmp < 0)
 		throw Operand::OverflowError();
-	if (rhs < 0 && _value < 0 && tmp > 0)
+	if (r_arg < 0 && _value < 0 && tmp > 0)
 		throw Operand::UnderflowError();
+	return AVM::CreateOperand(_precision, std::to_string(static_cast<int64_t>(_value + rhs)));
 }
 template <typename T>
-IOperand const* Operand<T>::operator-(IOperand const &r) const
+IOperand const* Operand<T>::operator-(IOperand const &rhs) const
 {
-	long double         rhs;
+	long double         r_arg;
 	T                   tmp;
-	std::stringstream   stream(r.ToString());
+	std::stringstream   stream(rhs.ToString());
 	
-	stream >> rhs;
+	stream >> r_arg;
 	tmp = _value; tmp -= rhs;
-	if (rhs < 0 && _value > 0 && tmp < 0)
+	if (r_arg < 0 && _value > 0 && tmp < 0)
 		throw Operand::OverflowError();
-	if (rhs > 0 && _value < 0 && tmp > 0)
+	if (r_arg > 0 && _value < 0 && tmp > 0)
 		throw Operand::UnderflowError();
+	return AVM::CreateOperand(_precision, std::to_string(static_cast<int64_t>(_value - rhs)));
 }
 template <typename T>
-IOperand const* Operand<T>::operator*(IOperand const &r) const
+IOperand const* Operand<T>::operator*(IOperand const &rhs) const
 {
-	long double         rhs;
+	long double         r_arg;
 	T                   tmp;
-	std::stringstream   stream(r.ToString());
+	std::stringstream   stream(rhs.ToString());
 	
-	stream >> rhs;
+	stream >> r_arg;
 	tmp = rhs; tmp *= _value;
-	if ((rhs < 0 && _value < 0 && tmp / rhs != _value) || (rhs > 0 && _value > 0 && tmp / rhs != _value))
+	if ((r_arg < 0 && _value < 0 && tmp / r_arg != _value) || (r_arg > 0 && _value > 0 && tmp / r_arg != _value))
 		throw Operand::OverflowError();
-	if ((_value < 0 || rhs < 0) && (tmp / rhs != _value))
+	if ((_value < 0 || r_arg < 0) && (tmp / r_arg != _value))
 		throw Operand::UnderflowError();
+	return AVM::CreateOperand(_precision, std::to_string(static_cast<int64_t>(_value * rhs)));
 }
 template <typename T>
-IOperand const* Operand<T>::operator/(IOperand const &r) const
+IOperand const* Operand<T>::operator/(IOperand const &rhs) const
 {
-	int64_t rhs;  std::stringstream   stream(r.ToString());
-	stream >> rhs;
+	int64_t				r_arg;
+	std::stringstream   stream(rhs.ToString());
+	stream >> r_arg;
 	
-	if (rhs == 0)
+	if (r_arg == 0)
 		throw Operand::DivisionByZeroError();
-	
-	return OperandFactory::CreateOperand(static_cast<Type>(_precision), std::to_string((int64_t)(_value / rhs)));
+	return AVM::CreateOperand(_precision, std::to_string(static_cast<int64_t>(_value / rhs)));
 }
 template <typename T>
-IOperand const* Operand<T>::operator%(IOperand const &r) const
+IOperand const* Operand<T>::operator%(IOperand const &rhs) const
 {
+	int64_t r_arg;
+	std::stringstream   stream(rhs.ToString());
+	stream >> r_arg;
+	
+	if (r_arg == 0)
+		throw Operand::ModuloByZeroError();
+	return AVM::CreateOperand(_precision, std::to_string(static_cast<int64_t>(_value % rhs)));
+}
 
+template<>
+IOperand const *    Operand<float>::operator%   (IOperand const & rhs) const
+{
+	float   r_arg;
+	std::stringstream   stream(rhs.ToString());
+	stream >> r_arg;
+	
+	if (r_arg == 0.0f)
+		throw Operand::ModuloByZeroError();
+	return AVM::CreateOperand(static_cast<Type>(_precision), std::to_string(fmod(_value, r_arg)));
+}
+
+template<>
+IOperand const *    Operand<double>::operator%   (IOperand const & rhs) const
+{
+	double   r_arg;
+	std::stringstream  stream(rhs.ToString());
+	stream >> r_arg;
+	
+	if (r_arg == 0.0)
+		throw Operand::ModuloByZeroError();
+	return AVM::CreateOperand(static_cast<Type>(_precision), std::to_string(fmod(_value, r_arg)));
+}
+
+template<>
+IOperand const *    Operand<float>::operator/   (IOperand const & rhs) const
+{
+	float   r_arg, tmp;
+	std::stringstream   stream(rhs.ToString());
+	stream >> r_arg;
+	
+	if (r_arg == 0.0f)
+		throw Operand::DivisionByZeroError();
+	tmp = _value / r_arg;
+	if (tmp == std::numeric_limits<float>::infinity())
+		throw Operand::OverflowError();
+	if (tmp == -std::numeric_limits<float>::infinity())
+		throw Operand::UnderflowError();
+	return AVM::CreateOperand(Type::Float, std::to_string(tmp));
+}
+
+template<>
+IOperand const *    Operand<double>::operator/   (IOperand const & rhs) const
+{
+	double   r_arg, tmp;
+	std::stringstream  stream(rhs.ToString());
+	stream >> r_arg;
+	
+	if (r_arg == 0.0)
+		throw Operand::DivisionByZeroError();
+	tmp = _value / r_arg; stream << tmp;
+	if (tmp == std::numeric_limits<double>::infinity())
+		throw Operand::OverflowError();
+	if (tmp == -std::numeric_limits<double>::infinity())
+		throw Operand::UnderflowError();
+	return AVM::CreateOperand(Type::Double, std::to_string(tmp));
+}
+
+template<>
+IOperand const *    Operand<float>::operator*   (IOperand const & rhs) const
+{
+	float   r_arg, tmp;
+	std::stringstream   stream(rhs.ToString());
+	stream >> r_arg;
+	
+	tmp = _value * r_arg;
+	if (tmp == std::numeric_limits<float>::infinity())
+		throw Operand::OverflowError();
+	if (tmp == -std::numeric_limits<float>::infinity())
+		throw Operand::UnderflowError();
+	return AVM::CreateOperand(Type::Float, std::to_string(tmp));
+}
+
+template<>
+IOperand const *    Operand<double>::operator*   (IOperand const & rhs) const
+{
+	double   r_arg, tmp;
+	std::stringstream  stream(rhs.ToString());
+	stream >> r_arg;
+	
+	tmp = _value * r_arg;
+	if (tmp == std::numeric_limits<double>::infinity())
+		throw Operand::OverflowError();
+	if (tmp == -std::numeric_limits<double>::infinity())
+		throw Operand::UnderflowError();
+	return AVM::CreateOperand(Type::Double, std::to_string(tmp));
 }

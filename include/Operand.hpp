@@ -3,7 +3,7 @@
 #include "IOperand.hpp"
 
 template <typename T>
-class Operand : IOperand
+class Operand : public IOperand
 {
 public:
 	Operand(std::string const & value, Type precision);
@@ -12,11 +12,11 @@ public:
 	int         GetPrecision() const override;
 	Type        GetType() const override;
 	std::string const &  ToString() const override;
-	IOperand const *    operator+   (IOperand const &) const override;
-	IOperand const *    operator-   (IOperand const &) const override;
-	IOperand const *    operator*   (IOperand const &) const override;
-	IOperand const *    operator/   (IOperand const &) const override;
-	IOperand const *    operator%   (IOperand const &) const override;
+	IOperand const * operator + (IOperand const &) const override;
+	IOperand const * operator - (IOperand const &) const override;
+	IOperand const * operator * (IOperand const &) const override;
+	IOperand const * operator / (IOperand const &) const override;
+	IOperand const * operator % (IOperand const &) const override;
 
 private:
 	class UnderflowError : public std::exception
