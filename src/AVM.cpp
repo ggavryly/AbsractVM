@@ -19,13 +19,7 @@ AVM::AVM(int argc, char **argv) : _argc(argc) , _argv(argv)
 	_operand_factory.push_back(&AVM::CreateDouble);
 }
 
-AVM::AVM(AVM const &)
-{}
-
-AVM::~AVM()
-{}
-
-void	CheckType(const IOperand *&lhs, const IOperand *&rhs)
+void	AVM::CheckType(const IOperand *&lhs, const IOperand *&rhs)
 {
 	int	maxPrecision = std::max(lhs->GetPrecision(), rhs->GetPrecision());
 	if (lhs->GetPrecision() < maxPrecision)
@@ -49,14 +43,10 @@ void AVM::Parse()
 		if (_argc > 1)
 		{
 			for (int i = 1; i < _argc; i++)
-			{
 				Parser parser(_argv[i], _commands);
-			}
 		}
 		else
-		{
 			Parser parser(_commands);
-		}
 	}
 	catch (std::exception &e)
 	{
@@ -65,14 +55,20 @@ void AVM::Parse()
 	}
 }
 
+void AVM::ExecuteCommand(Command &it)
+{
+	if (it.GetValue() != "$")
+		(this->*_func_with_args[it.GetAction()])(it.GetValue(), it.GetType());
+	else
+		_func_with_args[it.GetAction()];
+}
+
 void AVM::Execute()
 {
 	try
 	{
 		for(auto & elem : _commands)
-		{
-		
-		}
+			AVM::ExecuteCommand(elem);
 	}
 	catch (std::exception &e)
 	{
@@ -83,29 +79,24 @@ void AVM::Execute()
 
 IOperand const* AVM::CreateOperand(Type const &type, std::string const &value)
 {
-	return _operand_factory[static_cast<Type>(0)](value);
+	return AVM::_operand_factory[0](value);
 }
-
 IOperand const* AVM::CreateInt8(std::string const &value)
 {
 	return new Operand<int8_t>(value, static_cast<Type>(0));
 }
-
 IOperand const* AVM::CreateInt16(std::string const &value)
 {
 	return new Operand<int16_t>(value, static_cast<Type>(1));
 }
-
 IOperand const* AVM::CreateInt32(std::string const &value)
 {
 	return new Operand<int32_t>(value, static_cast<Type>(2));
 }
-
 IOperand const* AVM::CreateFloat(std::string const &value)
 {
 	return new Operand<float>(value, static_cast<Type>(3));
 }
-
 IOperand const* AVM::CreateDouble(std::string const &value)
 {
 	return new Operand<double>(value, static_cast<Type>(4));
@@ -115,7 +106,6 @@ void AVM::Push(std::string const &value, Type type)
 {
 	_stack.push_back(CreateOperand(type, value));
 }
-
 void AVM::Assert(std::string const &value, Type type)
 {
 	if (!_stack.empty())
@@ -133,14 +123,12 @@ void AVM::Assert(std::string const &value, Type type)
 	else
 		throw AVM::StackIsEmpty();
 }
-
 void AVM::Pop()
 {
 	if (_stack.empty())
 		throw AVM::StackIsEmpty();
 	_stack.pop_back();
 }
-
 void AVM::Dump()
 {
 	if (_stack.empty())
@@ -151,7 +139,6 @@ void AVM::Dump()
 			std::cout << (*elem)->ToString() << std::endl;
 	}
 }
-
 void AVM::Print()
 {
 	if (_stack.empty())
@@ -162,12 +149,11 @@ void AVM::Print()
 	else
 	{
 		if (!_stack.back()->GetPrecision())
-			std::cout << std::stoi(_stack.back()->ToString().c_str()) << std::endl;
+			std::cout << static_cast<char>(std::stoi(_stack.back()->ToString())) << std::endl;
 		else
 			std::cerr << "Print assert failed!" << std::endl;
 	}
 }
-
 void AVM::Add()
 {
 	if (_stack.size() > 1)
@@ -177,14 +163,77 @@ void AVM::Add()
 		IOperand const	*left = _stack.back();
 		_stack.pop_back();
 		CheckType(left, right);
-		_stack.push_back(left + right);
+		_stack.push_back(*left + *right);
 		delete right;
 		delete left;
 	}
 	else
 		throw AVM::NotEnoughData();
 }
-
+void AVM::Sub()
+{
+	if (_stack.size() > 1)
+	{
+		IOperand const	*right = _stack.back();
+		_stack.pop_back();
+		IOperand const	*left = _stack.back();
+		_stack.pop_back();
+		CheckType(left, right);
+		_stack.push_back(*left - *right);
+		delete right;
+		delete left;
+	}
+	else
+		throw AVM::NotEnoughData();
+}
+void AVM::Mul()
+{
+	if (_stack.size() > 1)
+	{
+		IOperand const	*right = _stack.back();
+		_stack.pop_back();
+		IOperand const	*left = _stack.back();
+		_stack.pop_back();
+		CheckType(left, right);
+		_stack.push_back(*left * *right);
+		delete right;
+		delete left;
+	}
+	else
+		throw AVM::NotEnoughData();
+}
+void AVM::Div()
+{
+	if (_stack.size() > 1)
+	{
+		IOperand const	*right = _stack.back();
+		_stack.pop_back();
+		IOperand const	*left = _stack.back();
+		_stack.pop_back();
+		CheckType(left, right);
+		_stack.push_back(*left / *right);
+		delete right;
+		delete left;
+	}
+	else
+		throw AVM::NotEnoughData();
+}
+void AVM::Mod()
+{
+	if (_stack.size() > 1)
+	{
+		IOperand const	*right = _stack.back();
+		_stack.pop_back();
+		IOperand const	*left = _stack.back();
+		_stack.pop_back();
+		CheckType(left, right);
+		_stack.push_back(*left % *right);
+		delete right;
+		delete left;
+	}
+	else
+		throw AVM::NotEnoughData();
+}
 void AVM::Exit()
 {
 	std::cout << "Stop executing the program" << std::endl;
@@ -195,13 +244,7 @@ const char* AVM::StackIsEmpty::what() const noexcept
 {
 	return "Error: stack is empty";
 }
-
 const char* AVM::NotEnoughData::what() const noexcept
 {
 	return "Not enough data for action";
-}
-
-const char* AVM::IncorrectType::what() const noexcept
-{
-	return "Wrong type";
 }

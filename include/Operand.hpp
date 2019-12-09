@@ -1,13 +1,15 @@
 #pragma once
 #include "main.hpp"
 #include "IOperand.hpp"
+#include "AVM.hpp"
 
 template <typename T>
 class Operand : public IOperand
 {
 public:
 	Operand(std::string const & value, Type precision);
-	virtual ~Operand();
+	Operand(Operand<T> const &) = default;
+	~Operand() override;
 	
 	int         GetPrecision() const override;
 	Type        GetType() const override;

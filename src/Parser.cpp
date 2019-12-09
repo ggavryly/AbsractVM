@@ -88,10 +88,20 @@ Command Parser::ParseCommand(std::string const &command)
 		Command new_command(s_match[1]);
 		if (s_match[2] == "push" || s_match[2] == "assert")
 		{
-			std::regex_search(command, s_match, std::regex("[\\ ](int8|int16|int32)[\\(]([-]?\\d+)[\\)]|[\\ ](float|double)[\\(]([-]?\\d+[\\.]?\\d+)[\\)]"));
+			std::regex_search(command, s_match,
+					std::regex("(?<=\\ )(int8|int16|int32)[\\(]([-]?\\d+)[\\)]|(?<=\\ )(float|double)[\\(]([-]?\\d+[\\.]?\\d+)[\\)]"));
 			if (s_match[2] == "" && s_match[4] == "")
 				throw SyntaxError();
-			(s_match[2] == "") ? new_command.SetValue(s_match[4]) : new_command.SetValue(s_match[2]);
+			if (s_match[2] == "")
+			{
+				new_command.SetValue(s_match[4]);
+				new_command.SetType(s_match[3]);
+			}
+			else
+			{
+				new_command.SetValue(s_match[2]);
+				new_command.SetType(s_match[1]);
+			}
 		}
 		return new_command;
 	}

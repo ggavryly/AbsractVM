@@ -1,5 +1,4 @@
 #include "Operand.hpp"
-#include "AVM.hpp"
 template <typename T>
 const char* Operand<T>::UnderflowError::what() const noexcept
 {
@@ -20,6 +19,7 @@ const char* Operand<T>::ModuloByZeroError::what() const noexcept
 {
 	return "This instruction attempt to modulo value by zero";
 }
+
 template<typename T>
 Operand<T>::Operand(std::string const & value, Type precision) : _str_value(value), _precision(precision)
 {
@@ -44,6 +44,7 @@ std::string const & Operand<T>::ToString() const
 {
 	return _str_value;
 }
+
 template <typename T>
 IOperand const* Operand<T>::operator+(IOperand const &rhs) const
 {
@@ -57,7 +58,7 @@ IOperand const* Operand<T>::operator+(IOperand const &rhs) const
 		throw Operand::OverflowError();
 	if (r_arg < 0 && _value < 0 && tmp > 0)
 		throw Operand::UnderflowError();
-	return AVM::CreateOperand(_precision, std::to_string(static_cast<int64_t>(_value + rhs)));
+	return CreateOperand(_precision, std::to_string(static_cast<int64_t>(_value + rhs)));
 }
 template <typename T>
 IOperand const* Operand<T>::operator-(IOperand const &rhs) const
@@ -111,9 +112,8 @@ IOperand const* Operand<T>::operator%(IOperand const &rhs) const
 		throw Operand::ModuloByZeroError();
 	return AVM::CreateOperand(_precision, std::to_string(static_cast<int64_t>(_value % rhs)));
 }
-
 template<>
-IOperand const *    Operand<float>::operator%   (IOperand const & rhs) const
+IOperand const* Operand<float>::operator%(IOperand const & rhs) const
 {
 	float   r_arg;
 	std::stringstream   stream(rhs.ToString());
@@ -123,9 +123,8 @@ IOperand const *    Operand<float>::operator%   (IOperand const & rhs) const
 		throw Operand::ModuloByZeroError();
 	return AVM::CreateOperand(static_cast<Type>(_precision), std::to_string(fmod(_value, r_arg)));
 }
-
 template<>
-IOperand const *    Operand<double>::operator%   (IOperand const & rhs) const
+IOperand const* Operand<double>::operator%(IOperand const & rhs) const
 {
 	double   r_arg;
 	std::stringstream  stream(rhs.ToString());
@@ -135,9 +134,8 @@ IOperand const *    Operand<double>::operator%   (IOperand const & rhs) const
 		throw Operand::ModuloByZeroError();
 	return AVM::CreateOperand(static_cast<Type>(_precision), std::to_string(fmod(_value, r_arg)));
 }
-
 template<>
-IOperand const *    Operand<float>::operator/   (IOperand const & rhs) const
+IOperand const* Operand<float>::operator/(IOperand const & rhs) const
 {
 	float   r_arg, tmp;
 	std::stringstream   stream(rhs.ToString());
@@ -152,9 +150,8 @@ IOperand const *    Operand<float>::operator/   (IOperand const & rhs) const
 		throw Operand::UnderflowError();
 	return AVM::CreateOperand(Type::Float, std::to_string(tmp));
 }
-
 template<>
-IOperand const *    Operand<double>::operator/   (IOperand const & rhs) const
+IOperand const* Operand<double>::operator/(IOperand const & rhs) const
 {
 	double   r_arg, tmp;
 	std::stringstream  stream(rhs.ToString());
@@ -169,9 +166,8 @@ IOperand const *    Operand<double>::operator/   (IOperand const & rhs) const
 		throw Operand::UnderflowError();
 	return AVM::CreateOperand(Type::Double, std::to_string(tmp));
 }
-
 template<>
-IOperand const *    Operand<float>::operator*   (IOperand const & rhs) const
+IOperand const* Operand<float>::operator*(IOperand const & rhs) const
 {
 	float   r_arg, tmp;
 	std::stringstream   stream(rhs.ToString());
@@ -184,9 +180,8 @@ IOperand const *    Operand<float>::operator*   (IOperand const & rhs) const
 		throw Operand::UnderflowError();
 	return AVM::CreateOperand(Type::Float, std::to_string(tmp));
 }
-
 template<>
-IOperand const *    Operand<double>::operator*   (IOperand const & rhs) const
+IOperand const* Operand<double>::operator*(IOperand const & rhs) const
 {
 	double   r_arg, tmp;
 	std::stringstream  stream(rhs.ToString());
