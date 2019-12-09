@@ -16,7 +16,7 @@ const char* ErrorHandling::NoExitCommand::what() const noexcept
 
 bool ErrorHandling::ExitTest(std::list<Command> const &actions)
 {
-	if ((actions.front().GetAction() == "exit"))
+	if ((actions.back().GetAction() == "exit"))
 		return true;
 	throw ErrorHandling::NoExitCommand();
 }

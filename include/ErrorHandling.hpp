@@ -10,7 +10,7 @@ public:
 	
 public:
 	static bool ExitTest(std::list<Command> const &);
-
+	
 private:
 	class NoExitCommand : public std::exception
 	{

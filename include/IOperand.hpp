@@ -3,6 +3,7 @@
 
 enum Type
 {
+	ErrorType = -1,
 	Int8 = 0,
 	Int16,
 	Int32,

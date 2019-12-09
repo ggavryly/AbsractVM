@@ -10,6 +10,7 @@ Command::Command(Command const &e)
 {
 	this->_action = e.GetAction();
 	this->_value = e.GetValue();
+	this->_type = e.GetType();
 }
 
 Command::~Command()

@@ -3,12 +3,11 @@
 #include "Command.hpp"
 #include "main.hpp"
 #include "Parser.hpp"
-#include "Operand.hpp"
 
 class AVM
 {
 public:
-	explicit AVM(int argc, char **argv);
+	AVM(int argc, char **argv);
 	AVM(AVM const &) = default;
 	~AVM() = default;
 	

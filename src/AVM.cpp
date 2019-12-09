@@ -1,4 +1,9 @@
+#include <ErrorHandling.hpp>
 #include "AVM.hpp"
+#include "Operand.hpp"
+
+std::vector<IOperand const*(*)(std::string const & value)>	AVM::_operand_factory;
+
 AVM::AVM(int argc, char **argv) : _argc(argc) , _argv(argv)
 {
 	_func_with_args.insert(std::make_pair("push", &AVM::Push));
@@ -12,11 +17,11 @@ AVM::AVM(int argc, char **argv) : _argc(argc) , _argv(argv)
 	_func_without_args.insert(std::make_pair("mod", &AVM::Mod));
 	_func_without_args.insert(std::make_pair("print", &AVM::Print));
 	_func_without_args.insert(std::make_pair("exit", &AVM::Exit));
-	_operand_factory.push_back(&AVM::CreateInt8);
-	_operand_factory.push_back(&AVM::CreateInt16);
-	_operand_factory.push_back(&AVM::CreateInt32);
-	_operand_factory.push_back(&AVM::CreateFloat);
-	_operand_factory.push_back(&AVM::CreateDouble);
+	AVM::_operand_factory.push_back(&AVM::CreateInt8);
+	AVM::_operand_factory.push_back(&AVM::CreateInt16);
+	AVM::_operand_factory.push_back(&AVM::CreateInt32);
+	AVM::_operand_factory.push_back(&AVM::CreateFloat);
+	AVM::_operand_factory.push_back(&AVM::CreateDouble);
 }
 
 void	AVM::CheckType(const IOperand *&lhs, const IOperand *&rhs)
@@ -47,6 +52,7 @@ void AVM::Parse()
 		}
 		else
 			Parser parser(_commands);
+		ErrorHandling::ExitTest(_commands);
 	}
 	catch (std::exception &e)
 	{
@@ -60,7 +66,7 @@ void AVM::ExecuteCommand(Command &it)
 	if (it.GetValue() != "$")
 		(this->*_func_with_args[it.GetAction()])(it.GetValue(), it.GetType());
 	else
-		_func_with_args[it.GetAction()];
+		(this->*_func_without_args[it.GetAction()])();
 }
 
 void AVM::Execute()
@@ -79,7 +85,7 @@ void AVM::Execute()
 
 IOperand const* AVM::CreateOperand(Type const &type, std::string const &value)
 {
-	return AVM::_operand_factory[0](value);
+	return AVM::_operand_factory[type](value);
 }
 IOperand const* AVM::CreateInt8(std::string const &value)
 {
@@ -135,7 +141,7 @@ void AVM::Dump()
 		std::cout << "Stack is empty" << std::endl;
 	else
 	{
-		for (auto elem = _stack.rend(), end = _stack.rbegin(); elem != end; elem++)
+		for (auto elem = _stack.rbegin(), end = _stack.rend(); elem != end; elem++)
 			std::cout << (*elem)->ToString() << std::endl;
 	}
 }

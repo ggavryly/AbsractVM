@@ -4,7 +4,7 @@
 class Command
 {
 public:
-	Command(std::string const &&);
+	explicit Command(std::string const &&);
 	Command();
 	Command(Command const &);
 	~Command();
@@ -19,7 +19,7 @@ public:
 
 private:
 	std::string _value = "$";
-	std::string _action;
-	Type		_type;
+	std::string _action = "";
+	Type		_type = ErrorType;
 };
 

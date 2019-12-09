@@ -9,19 +9,9 @@ Parser::Parser(std::string const & name, std::list<Command> &_commands)
 		for (;std::getline(_file_read, line);)
 		{
 			line = Trim(line);
-			try
-			{
-				_commands.push_front(ParseCommand(line));
-			}
-			catch (std::exception &e)
-			{
-				std::cerr << e.what() << std::endl;
-				exit(2);
-			}
-		}
-		for (auto & elem : _commands)
-		{
-			std::cout << "Value: " <<  elem.GetValue() << "| Action: " << elem.GetAction() << std::endl;
+			if (line.empty() || line[0] == ';')
+				continue;
+				_commands.push_back(ParseCommand(line));
 		}
 	}
 	else
@@ -36,12 +26,11 @@ Parser::Parser(std::list<Command> &_commands)
 		if (line.find(";;") != std::string::npos)
 			break;
 		line = Trim(line);
-		_commands.push_front(ParseCommand(line));
+		if (line.empty() || line[0] == ';')
+			continue;
+		_commands.push_back(ParseCommand(line));
 	}
-	for (auto & elem : _commands)
-	{
-		std::cout << "Value: " <<  elem.GetValue() << "| Action: " << elem.GetAction() << std::endl;
-	}
+	
 }
 
 
@@ -86,10 +75,10 @@ Command Parser::ParseCommand(std::string const &command)
 	if (s_match[1] != "")
 	{
 		Command new_command(s_match[1]);
-		if (s_match[2] == "push" || s_match[2] == "assert")
+		if (s_match[1] == "push" || s_match[1] == "assert")
 		{
 			std::regex_search(command, s_match,
-					std::regex("(?<=\\ )(int8|int16|int32)[\\(]([-]?\\d+)[\\)]|(?<=\\ )(float|double)[\\(]([-]?\\d+[\\.]?\\d+)[\\)]"));
+					std::regex("[\\ ](int8|int16|int32)[\\(]([-]?\\d+)[\\)]|[\\ ](float|double)[\\(]([-]?\\d+[\\.]?\\d+)[\\)]"));
 			if (s_match[2] == "" && s_match[4] == "")
 				throw SyntaxError();
 			if (s_match[2] == "")
