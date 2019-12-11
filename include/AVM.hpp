@@ -24,7 +24,6 @@ public:
 	void ExecuteCommand(Command &);
 	
 public:
-	void Parse();
 	void Execute();
 	void Exit();
 	void Push(std::string const & value, Type type);

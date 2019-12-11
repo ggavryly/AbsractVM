@@ -41,25 +41,7 @@ void	AVM::CheckType(const IOperand *&lhs, const IOperand *&rhs)
 	}
 }
 
-void AVM::Parse()
-{
-	try
-	{
-		if (_argc > 1)
-		{
-			for (int i = 1; i < _argc; i++)
-				Parser parser(_argv[i], _commands);
-		}
-		else
-			Parser parser(_commands);
-		ErrorHandling::ExitTest(_commands);
-	}
-	catch (std::exception &e)
-	{
-		std::cout << "AVM::Parse::" << e.what() << std::endl;
-		exit(1);
-	}
-}
+
 
 void AVM::ExecuteCommand(Command &it)
 {
@@ -73,8 +55,27 @@ void AVM::Execute()
 {
 	try
 	{
-		for(auto & elem : _commands)
-			AVM::ExecuteCommand(elem);
+		if (_argc > 1)
+		{
+			for (int i = 1; i < _argc; i++)
+			{
+				Parser parser(_argv[i], _commands);
+				ErrorHandling::ExitTest(_commands);
+				if (i + 1 < _argc)
+					_commands.pop_back();
+				for (auto &elem : _commands)
+					AVM::ExecuteCommand(elem);
+				_commands.clear();
+				_stack.clear();
+			}
+		}
+		else
+		{
+			Parser parser(_commands);
+			ErrorHandling::ExitTest(_commands);
+			for (auto &elem : _commands)
+				AVM::ExecuteCommand(elem);
+		}
 	}
 	catch (std::exception &e)
 	{

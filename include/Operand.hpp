@@ -51,31 +51,35 @@ private:
 template <typename T>
 const char* Operand<T>::UnderflowError::what() const noexcept
 {
-	return "This instruction attempt to store inside an variable a value that is larger than the maximum value";
+	return "Instruction attempt to store inside an variable a value that is larger than the minimum value";
 }
 template <typename T>
 const char* Operand<T>::OverflowError::what() const noexcept
 {
-	return "This instruction attempt to store inside an variable a value that is larger than the minimum value";
+	return "Instruction attempt to store inside an variable a value that is larger than the maximum value";
 }
 template <typename T>
 const char* Operand<T>::DivisionByZeroError::what() const noexcept
 {
-	return "This instruction attempt to divide value by zero";
+	return "Instruction attempt to divide value by zero";
 }
 template <typename T>
 const char* Operand<T>::ModuloByZeroError::what() const noexcept
 {
-	return "This instruction attempt to modulo value by zero";
+	return "Instruction attempt to modulo value by zero";
 }
 
 template<typename T>
-Operand<T>::Operand(std::string const & value, Type precision) : _str_value(value), _precision(precision)
+Operand<T>::Operand(std::string const & value, Type precision) : _str_value(value) ,_precision(precision)
 {
 	std::stringstream string_value(value);
 	long double tmp;
 	string_value >> tmp;
 	_value = tmp;
+	if (tmp > std::numeric_limits<T>::max())
+		throw Operand::OverflowError();
+	if (tmp < std::numeric_limits<T>::lowest())
+		throw Operand::UnderflowError();
 }
 template<typename T>
 Operand<T>::~Operand()

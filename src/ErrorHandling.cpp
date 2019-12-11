@@ -11,7 +11,7 @@ ErrorHandling::~ErrorHandling()
 
 const char* ErrorHandling::NoExitCommand::what() const noexcept
 {
-	return "[Exit] command hasn't been found";
+	return "No exit command found";
 }
 
 bool ErrorHandling::ExitTest(std::list<Command> const &actions)

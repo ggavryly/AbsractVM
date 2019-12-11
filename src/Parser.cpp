@@ -78,7 +78,7 @@ Command Parser::ParseCommand(std::string const &command)
 		if (s_match[1] == "push" || s_match[1] == "assert")
 		{
 			std::regex_search(command, s_match,
-					std::regex("[\\ ](int8|int16|int32)[\\(]([-]?\\d+)[\\)]|[\\ ](float|double)[\\(]([-]?\\d+[\\.]?\\d+)[\\)]"));
+					std::regex("[\\ ](int8|int16|int32)[\\(]([-]?\\d+)[\\)]|[\\ ](float|double)[\\(]([-]?\\d+[\\.]?(\\d+)?)[\\)]"));
 			if (s_match[2] == "" && s_match[4] == "")
 				throw SyntaxError();
 			if (s_match[2] == "")
