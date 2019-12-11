@@ -156,7 +156,7 @@ void AVM::Print()
 	else
 	{
 		if (!_stack.back()->GetPrecision())
-			std::cout << static_cast<char>(std::stoi(_stack.back()->ToString())) << std::endl;
+			std::cout << static_cast<char>(std::stoi(_stack.back()->ToString()));
 		else
 			std::cerr << "Print assert failed!" << std::endl;
 	}
@@ -243,7 +243,7 @@ void AVM::Mod()
 }
 void AVM::Exit()
 {
-	std::cout << "Stop executing the program" << std::endl;
+	std::cout << std::endl << "Stop executing the program" << std::endl;
 	exit(1);
 }
 
